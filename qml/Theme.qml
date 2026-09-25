@@ -17,6 +17,20 @@ QtObject {
     readonly property color accent: "#89b4fa"
     readonly property color danger: "#f38ba8"
 
+    // The night-sky wallpaper's palette. Kept here so the session shell and the
+    // greeter draw the same sky, and so it follows the theme like everything
+    // else. `buildingGlow` is the city glow (shaded by the renderer into a lit
+    // face and a shadowed one); star and moon are the sky.
+    readonly property color skyTop: "#04040a"
+    readonly property color skyBottom: "#12122a"
+    readonly property color buildingGlow: "#f9e2af"
+    readonly property color starGlow: "#dfe6ff"
+    readonly property color moonGlow: "#f5f0d8"
+    // Missile-command mode: interceptors keep the meteor shape but a red tail,
+    // and both kinds of impact flash warm.
+    readonly property color missileTrail: "#ff6b5e"
+    readonly property color explosionGlow: "#ffd9a0"
+
     readonly property int radius: 16
     readonly property int itemRadius: 8
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
