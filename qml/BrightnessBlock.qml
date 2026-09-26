@@ -58,11 +58,23 @@ Item {
         command: ["true"]
     }
 
-    // Poll for changes made elsewhere (the brightness keybinds, notably).
+    // The kernel reports every backlight change as a udev event (sysfs writes
+    // and firmware hotkeys alike).
+    Process {
+        id: watchProcess
+
+        command: ["udevadm", "monitor", "--kernel", "--subsystem-match=backlight"]
+        running: brightness.available
+        stdout: SplitParser {
+            onRead: data => refreshTimer.restart()
+        }
+    }
+
+    // Key repeat arrives as a burst of events; collapse them into one read.
     Timer {
-        interval: 3000
-        running: true
-        repeat: true
+        id: refreshTimer
+
+        interval: 60
         onTriggered: brightness.refresh()
     }
 
