@@ -45,13 +45,14 @@
           touch $out
         '';
 
-        # Lint only the components that use nothing but QtQuick: Quickshell
-        # registers its types from C++ without qmltypes, so qmllint cannot
-        # resolve them and would drown real errors in unknown-type noise.
+        # Lint only the components that use nothing but QtQuick (plus the pure
+        # JS): Quickshell registers its types from C++ without qmltypes, so
+        # qmllint cannot resolve them and would drown real errors in
+        # unknown-type noise.
         lint = pkgs.runCommand "qcommon-lint" {
           nativeBuildInputs = [ pkgs.qt6.qtdeclarative ];
         } ''
-          qmllint ${./qml/Theme.qml} ${./qml/NightSky.qml}
+          qmllint ${./qml/Theme.qml} ${./qml/NightSky.qml} ${./qml/FuzzyMatch.js}
           touch $out
         '';
       });

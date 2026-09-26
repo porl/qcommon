@@ -13,6 +13,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import "FuzzyMatch.js" as FuzzyMatch
 
 PanelWindow {
     id: menu
@@ -67,8 +68,58 @@ PanelWindow {
 
     property int current: 1
 
+    // Type-to-select: printable keystrokes since the last pause, fuzzy-matched
+    // against the row labels to move `current`. Enter still runs the selection,
+    // so nothing here can fire an action on its own.
+    property string query: ""
+
+    // A pause ends the search, so the next keystroke starts a fresh one rather
+    // than extending a stale query (a combobox's reset).
+    Timer {
+        id: queryTimer
+
+        interval: 1000
+        onTriggered: menu.query = ""
+    }
+
     onItemsChanged: if (current >= items.length)
         current = Math.max(0, items.length - 1)
+
+    function clearQuery(): void {
+        queryTimer.stop();
+        query = "";
+    }
+
+    function typeQuery(text: string): void {
+        var next = query + text;
+        var index = FuzzyMatch.bestIndex(items, next);
+        if (index < 0) {
+            // A key that matches nothing must not wedge the search: try it on
+            // its own, and give up if even that matches nothing.
+            next = text;
+            index = FuzzyMatch.bestIndex(items, next);
+        }
+        if (index < 0) {
+            clearQuery();
+            return;
+        }
+        query = next;
+        current = index;
+        queryTimer.restart();
+    }
+
+    function backspaceQuery(): void {
+        if (query.length === 0)
+            return;
+        query = query.slice(0, -1);
+        var index = FuzzyMatch.bestIndex(items, query);
+        if (index >= 0)
+            current = index;
+        if (query.length === 0)
+            queryTimer.stop();
+        else
+            queryTimer.restart();
+    }
 
     Timer {
         id: closeTimer
@@ -79,6 +130,7 @@ PanelWindow {
 
     function open(): void {
         closeTimer.stop();
+        clearQuery();
         visible = true;
         shown = true;
         scope.forceActiveFocus();
@@ -163,16 +215,28 @@ PanelWindow {
 
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Escape) {
-                    menu.visible = false;
+                    if (menu.query.length > 0)
+                        menu.clearQuery();
+                    else
+                        menu.visible = false;
                     event.accepted = true;
                 } else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) {
+                    menu.clearQuery();
                     menu.current = (menu.current + 1) % menu.items.length;
                     event.accepted = true;
                 } else if (event.key === Qt.Key_Up) {
+                    menu.clearQuery();
                     menu.current = (menu.current + menu.items.length - 1) % menu.items.length;
                     event.accepted = true;
                 } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                     menu.run(menu.items[menu.current].action);
+                    event.accepted = true;
+                } else if (event.key === Qt.Key_Backspace) {
+                    menu.backspaceQuery();
+                    event.accepted = true;
+                } else if (event.text.length > 0
+                    && !(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))) {
+                    menu.typeQuery(event.text);
                     event.accepted = true;
                 }
             }

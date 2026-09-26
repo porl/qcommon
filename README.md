@@ -20,13 +20,16 @@ directory import — there is no module path or import statement to keep in step
 
 - Primitives: `Theme`, `Glyph` (hand-drawn icons), `Toggle`, `PopoutState`,
   `Tooltip`, `MenuRow`, `MenuColumn`.
+- Pure JS (unit-tested): `NightSkySim` (the wallpaper's simulation and mode
+  policy), `FuzzyMatch` (fuzzy scoring and best-index used by type-to-select).
 - Bar and blocks: `Bar` (`showWorkspaces` hides the Hyprland workspace strip),
   `Workspaces`, `WorkspacePreview`, `Media`, `NetworkBlock`/`NetworkPopout`,
   `BluetoothBlock`/`BluetoothPopout`, `BrightnessBlock`/`BrightnessPopout`,
   `Volume`/`VolumePopout`, `Battery`, `Power`, `Tray`/`TrayItem`/`TrayMenu`/
   `TrayOverflow`, `Calendar`.
 - Overlays: `SessionMenu` (actions are supplied by the host, so the greeter can
-  omit Lock/Log out).
+  omit Lock/Log out; typing fuzzy-selects a row — Enter still activates, and the
+  search resets after a pause).
 
 ## Building
 
