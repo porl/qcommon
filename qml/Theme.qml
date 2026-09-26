@@ -3,13 +3,14 @@ import QtQuick
 QtObject {
     readonly property color base: "#000000"
     readonly property color backdrop: "#9911111b"
-    // Cards are black (the shell no longer blurs them); the border keeps them
+    // Cards are translucent black over the compositor's blur, which the layer
+    // rules mask to the painted shape (`ignore_alpha`); the border keeps them
     // from disappearing into a dark desktop.
-    readonly property color surface: "#e6000000"
+    readonly property color surface: "#b3000000"
     readonly property color surfaceAlt: "#45475a"
     // Card borders: brighter than surfaceAlt so cards read on a black desktop.
     readonly property color border: "#6c7086"
-    readonly property color bar: "#cc000000"
+    readonly property color bar: "#a6000000"
 
     readonly property color text: "#cdd6f4"
     readonly property color subtext: "#bac2de"
