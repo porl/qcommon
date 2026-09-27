@@ -71,6 +71,14 @@ PopupWindow {
         closeRequested();
     }
 
+    // Closing must drop the open submenu chain: the popup's item tree survives
+    // between shows, so otherwise the next open re-expands the old cascade
+    // (closeAll only covers a click on a leaf; click-away closes via the grab).
+    onOpenChanged: {
+        if (!trayMenu.open)
+            path = [];
+    }
+
     visible: trayMenu.open && trayMenu.handle !== null
     color: "transparent"
     implicitWidth: menuRow.implicitWidth + 16
