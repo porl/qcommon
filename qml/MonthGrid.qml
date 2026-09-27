@@ -23,7 +23,7 @@ Item {
     // builds it (the agenda command's marker output); null means no dots.
     property var markedDays: null
     property bool showWeekNumbers: false
-    property string weekFormat: "w{week}"
+    property string weekFormat: "W{week}"
 
     readonly property date today: {
         var d = new Date();

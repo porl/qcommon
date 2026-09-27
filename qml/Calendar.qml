@@ -5,7 +5,7 @@
 // the ISO date (apps that ignore the argument simply open as usual). The grid
 // carries ISO week numbers down its left by default
 // (`QSHELL_CALENDAR_WEEK_NUMBERS`, on/off; `QSHELL_CALENDAR_WEEK_FORMAT`, a
-// template with `{week}`, default `w{week}`).
+// template with `{week}`, default `W{week}`).
 //
 // Two optional commands feed the rest:
 //   QSHELL_CALENDAR_AGENDA   the selected day's agenda, shown under the grid
@@ -44,7 +44,7 @@ PanelWindow {
         var raw = (Quickshell.env("QSHELL_CALENDAR_WEEK_NUMBERS") || "on").toLowerCase();
         return !(raw === "off" || raw === "0" || raw === "false" || raw === "no");
     }
-    readonly property string weekFormat: Quickshell.env("QSHELL_CALENDAR_WEEK_FORMAT") || "w{week}"
+    readonly property string weekFormat: Quickshell.env("QSHELL_CALENDAR_WEEK_FORMAT") || "W{week}"
 
     property int shownYear: today.getFullYear()
     property int shownMonth: today.getMonth()
@@ -279,9 +279,11 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    // Keyboard while open, released as soon as it closes: arrow keys walk the
-    // grid and Enter picks the day (see handleKey).
-    WlrLayershell.keyboardFocus: calendar.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    // Keyboard focus comes from the focus grab while the popout is pinned
+    // (below). Do NOT set WlrKeyboardFocus.Exclusive here: Hyprland treats an
+    // exclusive-keyboard layer surface as "forced above all" for pointer
+    // hit-testing (InputManager's m_exclusiveLSes), so every click resolves to
+    // the card, the grab never clears and click-away dismissal dies.
     WlrLayershell.namespace: "quickshell-calendar"
 
     anchors {

@@ -174,8 +174,8 @@ TestCase {
         waitForRendering(withWeeks);
         compare(withWeeks.weekNumberAt(0), 36);
         compare(withWeeks.weekNumberAt(4), 40);
-        compare(withWeeks.weekLabelAt(0), "w36");
-        compare(withWeeks.weekLabelAt(4), "w40");
+        compare(withWeeks.weekLabelAt(0), "W36");
+        compare(withWeeks.weekLabelAt(4), "W40");
     }
 
     function test_week_labels_use_the_majority_week_under_a_sunday_start() {
@@ -186,11 +186,11 @@ TestCase {
     }
 
     function test_week_labels_handle_a_53_week_year() {
-        compare(december.weekLabelAt(december.rows - 1), "w53");
+        compare(december.weekLabelAt(december.rows - 1), "W53");
     }
 
     function test_week_format_template() {
-        compare(withWeeks.weekLabelFor(7), "w7");
+        compare(withWeeks.weekLabelFor(7), "W7");
         compare(customFormat.weekLabelAt(0), "36");
         verify(customFormat.weekGutter < withWeeks.weekGutter, "a shorter format needs a narrower gutter");
     }
@@ -199,8 +199,8 @@ TestCase {
         waitForRendering(withWeeks);
         var texts = weekTexts(withWeeks);
         compare(texts.length, withWeeks.rows);
-        compare(texts[0].text, "w36");
-        compare(texts[4].text, "w40");
+        compare(texts[0].text, "W36");
+        compare(texts[4].text, "W40");
         // smaller and dimmer than the day numbers
         compare(texts[0].font.pixelSize, theme.fontSizeTiny);
         compare(texts[0].color, theme.overlay);
