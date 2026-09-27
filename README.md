@@ -18,8 +18,10 @@ directory import — there is no module path or import statement to keep in step
 
 ## Components
 
-- Primitives: `Theme`, `Glyph` (hand-drawn icons), `Toggle`, `PopoutState`,
-  `Tooltip`, `MenuRow`, `MenuColumn`.
+- Primitives: `Theme` (its colours are the Mocha palette by default; pass a
+  `palette` object to override the roles a consumer deploys), `Glyph`
+  (hand-drawn icons), `Toggle`, `PopoutState`, `Tooltip`, `MenuRow`,
+  `MenuColumn`.
 - Pure JS (unit-tested): `NightSkySim` (the wallpaper's simulation and mode
   policy), `FuzzyMatch` (fuzzy scoring and best-index used by type-to-select).
 - Bar and blocks: `Bar` (`showWorkspaces` hides the Hyprland workspace strip),
