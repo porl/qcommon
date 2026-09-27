@@ -96,7 +96,7 @@ Item {
         id: weekMetrics
 
         font.family: grid.theme.fontFamily
-        font.pixelSize: grid.theme.fontSizeTiny
+        font.pixelSize: grid.theme.fontSizeMicro
         text: grid.weekLabelFor(53)
     }
 
@@ -210,7 +210,7 @@ Item {
                 text: grid.weekLabelAt(index)
                 color: grid.theme.overlay
                 font.family: grid.theme.fontFamily
-                font.pixelSize: grid.theme.fontSizeTiny
+                font.pixelSize: grid.theme.fontSizeMicro
             }
         }
     }

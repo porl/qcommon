@@ -42,10 +42,12 @@ QtObject {
     readonly property int radius: 16
     readonly property int itemRadius: 8
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
-    // Type scale: base for primary UI, small for secondary, tiny for captions.
+    // Type scale: base for primary UI, small for secondary, tiny for captions,
+    // micro for labels that must recede behind them (the week-number gutter).
     readonly property int fontSize: 16
     readonly property int fontSizeSmall: 14
     readonly property int fontSizeTiny: 12
+    readonly property int fontSizeMicro: 10
     // Tray/status icon size. Larger than the text base so icons read at a
     // glance; both the bar and the overflow grid use it so they stay matched.
     readonly property int trayIconSize: 20

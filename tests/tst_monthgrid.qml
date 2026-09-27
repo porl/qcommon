@@ -156,6 +156,15 @@ TestCase {
         return texts;
     }
 
+    function dayNumber(grid) {
+        var cell = cells(grid)[0];
+        for (var i = 0; i < cell.children.length; i++) {
+            if (typeof cell.children[i].text === "string")
+                return cell.children[i];
+        }
+        return null;
+    }
+
     function test_iso_week_numbers() {
         // Weeks start Monday and week 1 is the week of 4 January.
         compare(september.isoWeek(new Date(2026, 0, 1)), 1);
@@ -202,7 +211,10 @@ TestCase {
         compare(texts[0].text, "W36");
         compare(texts[4].text, "W40");
         // smaller and dimmer than the day numbers
-        compare(texts[0].font.pixelSize, theme.fontSizeTiny);
+        compare(texts[0].font.pixelSize, theme.fontSizeMicro);
+        var day = dayNumber(withWeeks);
+        verify(day !== null, "found a day number");
+        verify(texts[0].font.pixelSize < day.font.pixelSize, "week labels are smaller than the day numbers");
         compare(texts[0].color, theme.overlay);
         compare(texts[0].x, 0);
         compare(texts[0].width, withWeeks.weekGutter - 4);
