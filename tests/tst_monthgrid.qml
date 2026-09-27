@@ -42,6 +42,7 @@ TestCase {
         shownMonth: 8
         weekStart: 0 // Sunday
         selected: new Date(2026, 8, 27)
+        showWeekNumbers: true
     }
 
     function gridItem(grid) {
@@ -143,6 +144,89 @@ TestCase {
         compare(cells(september)[0].marked, false);
     }
 
+    function weekTexts(grid) {
+        var column = findChild(grid, "weekNumbers");
+        verify(column !== null, "found the week-number column");
+        var texts = [];
+        for (var i = 0; i < column.children.length; i++) {
+            var child = column.children[i];
+            if (typeof child.text === "string" && child.height === grid.cellHeight)
+                texts.push(child);
+        }
+        return texts;
+    }
+
+    function test_iso_week_numbers() {
+        // Weeks start Monday and week 1 is the week of 4 January.
+        compare(september.isoWeek(new Date(2026, 0, 1)), 1);
+        compare(september.isoWeek(new Date(2025, 11, 29)), 1);
+        compare(september.isoWeek(new Date(2026, 0, 4)), 1);
+        compare(september.isoWeek(new Date(2026, 0, 5)), 2);
+        // 2026 has 53 weeks; 2027-W01 starts Monday 4 January.
+        compare(september.isoWeek(new Date(2026, 11, 31)), 53);
+        compare(september.isoWeek(new Date(2027, 0, 3)), 53);
+        compare(september.isoWeek(new Date(2027, 0, 4)), 1);
+        compare(september.isoWeek(new Date(2005, 0, 1)), 53);
+        compare(september.isoWeek(new Date(2020, 11, 31)), 53);
+    }
+
+    function test_week_labels_follow_the_rows() {
+        waitForRendering(withWeeks);
+        compare(withWeeks.weekNumberAt(0), 36);
+        compare(withWeeks.weekNumberAt(4), 40);
+        compare(withWeeks.weekLabelAt(0), "w36");
+        compare(withWeeks.weekLabelAt(4), "w40");
+    }
+
+    function test_week_labels_use_the_majority_week_under_a_sunday_start() {
+        // The row starts on Sunday 30 August; its Wednesday is in the same ISO
+        // week as the Monday-to-Saturday part the row mostly covers.
+        compare(sundayStart.weekNumberAt(0), 36);
+        compare(sundayStart.weekNumberAt(4), 40);
+    }
+
+    function test_week_labels_handle_a_53_week_year() {
+        compare(december.weekLabelAt(december.rows - 1), "w53");
+    }
+
+    function test_week_format_template() {
+        compare(withWeeks.weekLabelFor(7), "w7");
+        compare(customFormat.weekLabelAt(0), "36");
+        verify(customFormat.weekGutter < withWeeks.weekGutter, "a shorter format needs a narrower gutter");
+    }
+
+    function test_week_numbers_render_down_the_gutter() {
+        waitForRendering(withWeeks);
+        var texts = weekTexts(withWeeks);
+        compare(texts.length, withWeeks.rows);
+        compare(texts[0].text, "w36");
+        compare(texts[4].text, "w40");
+        // smaller and dimmer than the day numbers
+        compare(texts[0].font.pixelSize, theme.fontSizeTiny);
+        compare(texts[0].color, theme.overlay);
+        compare(texts[0].x, 0);
+        compare(texts[0].width, withWeeks.weekGutter - 4);
+    }
+
+    function test_week_numbers_shrink_the_day_cells() {
+        waitForRendering(withWeeks);
+        verify(withWeeks.weekGutter > 0, "the gutter is reserved");
+        compare(withWeeks.cellWidth, (withWeeks.width - withWeeks.weekGutter) / 7);
+        compare(gridItem(withWeeks).x, withWeeks.weekGutter);
+        var c = cells(withWeeks);
+        compare(c[0].x, 0, "the first day cell starts the day area");
+        verify(c[6].x + c[6].width <= withWeeks.dayAreaWidth + 0.01, "seven cells fit the day area");
+    }
+
+    function test_week_numbers_off_leaves_the_grid_alone() {
+        waitForRendering(september);
+        compare(september.weekGutter, 0);
+        compare(september.cellWidth, september.width / 7);
+        compare(findChild(september, "weekNumbers").visible, false);
+        compare(gridItem(september).x, 0);
+        compare(gridItem(september).width, september.width);
+    }
+
     // No click test: qmltestrunner's offscreen platform does not deliver
     // synthetic mouse events (a bare MouseArea with `when: windowShown` fails
     // the same way), so the click wiring is driven on a machine instead.
@@ -179,5 +263,41 @@ TestCase {
             "2026-09-27": true,
             "2026-08-31": true
         })
+    }
+
+    MonthGrid {
+        id: withWeeks
+
+        width: 260
+        theme: theme
+        shownYear: 2026
+        shownMonth: 8 // September
+        weekStart: 1 // Monday
+        showWeekNumbers: true
+    }
+
+    MonthGrid {
+        id: customFormat
+
+        visible: false
+        width: 260
+        theme: theme
+        shownYear: 2026
+        shownMonth: 8 // September
+        weekStart: 1
+        showWeekNumbers: true
+        weekFormat: "{week}"
+    }
+
+    MonthGrid {
+        id: december
+
+        visible: false
+        width: 260
+        theme: theme
+        shownYear: 2026
+        shownMonth: 11 // December
+        weekStart: 1
+        showWeekNumbers: true
     }
 }

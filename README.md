@@ -32,7 +32,8 @@ directory import — there is no module path or import statement to keep in step
   `Volume`/`VolumePopout`, `Battery`, `Power`, `Tray`/`TrayItem`/`TrayMenu`/
   `TrayOverflow`, `Calendar` and `MonthGrid` (the calendar's weekday header and
   day cells; seven columns by construction, so a fractional cell width cannot
-  drop a day, and a dot per day the agenda command marks).
+  drop a day, a dot per day the agenda command marks, and ISO week numbers in a
+  left gutter when enabled).
 - Overlays: `SessionMenu` (actions are supplied by the host, so the greeter can
   omit Lock/Log out; typing fuzzy-selects a row — Enter still activates, and the
   search resets after a pause).

@@ -2,7 +2,10 @@
 // navigation; clicking a day selects it, and clicking the selected day again
 // (or double-clicking) opens the configured calendar app for that date —
 // `QSHELL_CALENDAR` is a shell command template and `{date}` is replaced with
-// the ISO date (apps that ignore the argument simply open as usual).
+// the ISO date (apps that ignore the argument simply open as usual). The grid
+// carries ISO week numbers down its left by default
+// (`QSHELL_CALENDAR_WEEK_NUMBERS`, on/off; `QSHELL_CALENDAR_WEEK_FORMAT`, a
+// template with `{week}`, default `w{week}`).
 //
 // Two optional commands feed the rest:
 //   QSHELL_CALENDAR_AGENDA   the selected day's agenda, shown under the grid
@@ -36,6 +39,12 @@ PanelWindow {
 
     readonly property int cardWidth: 280
     readonly property int weekStart: (Quickshell.env("QSHELL_WEEK_START") || "mon").toLowerCase().startsWith("s") ? 0 : 1
+    // ISO week numbers down the left of the grid, on unless switched off.
+    readonly property bool weekNumbers: {
+        var raw = (Quickshell.env("QSHELL_CALENDAR_WEEK_NUMBERS") || "on").toLowerCase();
+        return !(raw === "off" || raw === "0" || raw === "false" || raw === "no");
+    }
+    readonly property string weekFormat: Quickshell.env("QSHELL_CALENDAR_WEEK_FORMAT") || "w{week}"
 
     property int shownYear: today.getFullYear()
     property int shownMonth: today.getMonth()
@@ -379,6 +388,8 @@ PanelWindow {
                     weekStart: calendar.weekStart
                     selected: calendar.selected
                     markedDays: calendar.markedDays
+                    showWeekNumbers: calendar.weekNumbers
+                    weekFormat: calendar.weekFormat
                     onDayClicked: day => {
                         if (calendar.sameDay(day, calendar.selected))
                             calendar.openApp(day);

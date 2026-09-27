@@ -4,6 +4,10 @@
 // which floors to six for e.g. 260 / (260 / 7)). Pure QtQuick apart from Theme,
 // so qmltestrunner pins the layout; clicking emits the day and the consumer
 // decides what a click means.
+//
+// With `showWeekNumbers` the rows carry an ISO 8601 week number in a left
+// gutter (the numbers of the week each row mostly covers), rendered with
+// `weekFormat`, which takes a `{week}` placeholder.
 import QtQuick
 
 Item {
@@ -18,6 +22,8 @@ Item {
     // ISO date ("yyyy-MM-dd") -> true for days that get a dot. The consumer
     // builds it (the agenda command's marker output); null means no dots.
     property var markedDays: null
+    property bool showWeekNumbers: false
+    property string weekFormat: "w{week}"
 
     readonly property date today: {
         var d = new Date();
@@ -33,7 +39,11 @@ Item {
     readonly property int rows: Math.ceil((firstOffset + daysInMonth) / 7)
 
     readonly property int cellHeight: 30
-    readonly property real cellWidth: width / 7
+    // The gutter is sized to the widest label the format can produce (week
+    // 53), so a custom format does not need a hard-coded width.
+    readonly property real weekGutter: showWeekNumbers ? Math.ceil(weekMetrics.advanceWidth) + 8 : 0
+    readonly property real dayAreaWidth: width - weekGutter
+    readonly property real cellWidth: dayAreaWidth / 7
 
     signal dayClicked(date day)
     signal dayDoubleClicked(date day)
@@ -47,16 +57,54 @@ Item {
         return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
     }
 
-    implicitWidth: cellWidth * 7
+    // ISO 8601 week number: weeks start Monday, week 1 is the week of 4
+    // January. UTC arithmetic so DST cannot shift a day.
+    function isoWeek(d): int {
+        var utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+        var mondayIndex = (new Date(utc).getUTCDay() + 6) % 7;
+        var thursday = utc + (3 - mondayIndex) * 86400000;
+        var year = new Date(thursday).getUTCFullYear();
+        var jan4 = Date.UTC(year, 0, 4);
+        var jan4MondayIndex = (new Date(jan4).getUTCDay() + 6) % 7;
+        var week1Monday = jan4 - jan4MondayIndex * 86400000;
+        return Math.round((thursday - week1Monday) / (7 * 86400000)) + 1;
+    }
+
+    // A row's week is the ISO week of its fourth day: Thursday on a Monday
+    // start, Wednesday on a Sunday start (which is in the ISO week of the
+    // row's Monday-to-Saturday part). Either way that is the week the row
+    // mostly covers.
+    function weekNumberAt(row): int {
+        return isoWeek(dayAt(row * 7 + 3));
+    }
+
+    function weekLabelFor(week): string {
+        return ("" + weekFormat).replace(/\{week\}/g, "" + week);
+    }
+
+    function weekLabelAt(row): string {
+        return weekLabelFor(weekNumberAt(row));
+    }
+
+    implicitWidth: cellWidth * 7 + weekGutter
     implicitHeight: header.height + days.height
     // A container: give it real bounds so hit-testing and the card's Column
     // both see the content (implicitHeight alone is only a hint).
     height: implicitHeight
 
+    TextMetrics {
+        id: weekMetrics
+
+        font.family: grid.theme.fontFamily
+        font.pixelSize: grid.theme.fontSizeTiny
+        text: grid.weekLabelFor(53)
+    }
+
     Row {
         id: header
 
-        width: grid.width
+        x: grid.weekGutter
+        width: grid.dayAreaWidth
 
         Repeater {
             model: 7
@@ -78,7 +126,8 @@ Item {
         id: days
 
         anchors.top: header.bottom
-        width: grid.width
+        x: grid.weekGutter
+        width: grid.dayAreaWidth
         columns: 7
 
         Repeater {
@@ -134,6 +183,34 @@ Item {
                     onClicked: grid.dayClicked(parent.day)
                     onDoubleClicked: grid.dayDoubleClicked(parent.day)
                 }
+            }
+        }
+    }
+
+    Column {
+        id: weekNumbers
+
+        objectName: "weekNumbers"
+
+        visible: grid.showWeekNumbers
+        anchors.top: days.top
+        x: 0
+        width: Math.max(0, grid.weekGutter - 4)
+
+        Repeater {
+            model: grid.rows
+
+            Text {
+                required property int index
+
+                width: weekNumbers.width
+                height: grid.cellHeight
+                horizontalAlignment: Text.AlignRight
+                verticalAlignment: Text.AlignVCenter
+                text: grid.weekLabelAt(index)
+                color: grid.theme.overlay
+                font.family: grid.theme.fontFamily
+                font.pixelSize: grid.theme.fontSizeTiny
             }
         }
     }
