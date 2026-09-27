@@ -12,6 +12,10 @@ TestCase {
     // Input tests need the window exposed before they run.
     when: windowShown
 
+    // `.visible` reads QQuickItem's *effective* visibility (ancestors
+    // included), and qmltestrunner's TestCase root is invisible by default,
+    // which would mask the dots' own visible bindings.
+    visible: true
     width: 400
     height: 400
 
@@ -104,6 +108,41 @@ TestCase {
         compare(iso(sundayStart.dayAt(0)), "2026-08-30");
     }
 
+    function cellOn(grid, y, m, d) {
+        var c = cells(grid);
+        var wanted = new Date(y, m, d);
+        for (var i = 0; i < c.length; i++) {
+            if (grid.sameDay(c[i].day, wanted))
+                return c[i];
+        }
+        return null;
+    }
+
+    function test_event_dots_mark_their_days() {
+        waitForRendering(withMarkers);
+        var c = cellOn(withMarkers, 2026, 8, 27);
+        verify(c !== null, "found 27 September");
+        compare(c.marked, true);
+        var dot = findChild(c, "eventDot");
+        verify(dot !== null, "found the dot");
+        compare(dot.visible, true);
+        var plain = cellOn(withMarkers, 2026, 8, 26);
+        compare(plain.marked, false);
+        compare(findChild(plain, "eventDot").visible, false);
+    }
+
+    function test_event_dots_reach_adjacent_month_days() {
+        waitForRendering(withMarkers);
+        // 2026-08-31 is the first cell of the September grid.
+        compare(cellOn(withMarkers, 2026, 7, 31).marked, true);
+        compare(cellOn(withMarkers, 2026, 8, 30).marked, false);
+    }
+
+    function test_no_dots_without_markers() {
+        waitForRendering(september);
+        compare(cells(september)[0].marked, false);
+    }
+
     // No click test: qmltestrunner's offscreen platform does not deliver
     // synthetic mouse events (a bare MouseArea with `when: windowShown` fails
     // the same way), so the click wiring is driven on a machine instead.
@@ -126,5 +165,19 @@ TestCase {
         shownYear: 2027
         shownMonth: 1 // February
         weekStart: 1
+    }
+
+    MonthGrid {
+        id: withMarkers
+
+        width: 260
+        theme: theme
+        shownYear: 2026
+        shownMonth: 8 // September
+        weekStart: 1 // Monday
+        markedDays: ({
+            "2026-09-27": true,
+            "2026-08-31": true
+        })
     }
 }

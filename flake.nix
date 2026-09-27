@@ -52,7 +52,7 @@
         lint = pkgs.runCommand "qcommon-lint" {
           nativeBuildInputs = [ pkgs.qt6.qtdeclarative ];
         } ''
-          qmllint ${./qml/Theme.qml} ${./qml/NightSky.qml} ${./qml/MonthGrid.qml} ${./qml/FuzzyMatch.js}
+          qmllint ${./qml/Theme.qml} ${./qml/NightSky.qml} ${./qml/MonthGrid.qml} ${./qml/FuzzyMatch.js} ${./qml/CalendarAgenda.js}
           touch $out
         '';
       });

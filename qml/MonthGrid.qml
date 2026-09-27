@@ -15,6 +15,9 @@ Item {
     // 0 Sunday, 1 Monday.
     property int weekStart: 1
     property date selected
+    // ISO date ("yyyy-MM-dd") -> true for days that get a dot. The consumer
+    // builds it (the agenda command's marker output); null means no dots.
+    property var markedDays: null
 
     readonly property date today: {
         var d = new Date();
@@ -82,12 +85,15 @@ Item {
             model: grid.rows * 7
 
             Rectangle {
+                id: cell
+
                 required property int index
 
                 readonly property date day: grid.dayAt(index)
                 readonly property bool inMonth: day.getMonth() === grid.shownMonth && day.getFullYear() === grid.shownYear
                 readonly property bool isToday: grid.sameDay(day, grid.today)
                 readonly property bool isSelected: grid.sameDay(day, grid.selected)
+                readonly property bool marked: grid.markedDays !== null && grid.markedDays[Qt.formatDate(day, "yyyy-MM-dd")] === true
 
                 width: grid.cellWidth
                 height: grid.cellHeight
@@ -98,11 +104,26 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: parent.day.getDate()
-                    color: parent.isSelected ? grid.theme.base : (parent.inMonth ? grid.theme.text : grid.theme.overlay)
+                    text: cell.day.getDate()
+                    color: cell.isSelected ? grid.theme.base : (cell.inMonth ? grid.theme.text : grid.theme.overlay)
                     font.family: grid.theme.fontFamily
                     font.pixelSize: grid.theme.fontSizeSmall
-                    font.bold: parent.isToday
+                    font.bold: cell.isToday
+                }
+
+                Rectangle {
+                    objectName: "eventDot"
+
+                    width: 4
+                    height: 4
+                    radius: 2
+                    visible: cell.marked
+                    color: cell.isSelected ? grid.theme.base : (cell.inMonth ? grid.theme.accent : grid.theme.overlay)
+                    anchors {
+                        horizontalCenter: parent.horizontalCenter
+                        bottom: parent.bottom
+                        bottomMargin: 3
+                    }
                 }
 
                 MouseArea {

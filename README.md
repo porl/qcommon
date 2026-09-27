@@ -23,14 +23,16 @@ directory import — there is no module path or import statement to keep in step
   (hand-drawn icons), `Toggle`, `PopoutState`, `Tooltip`, `MenuRow`,
   `MenuColumn`.
 - Pure JS (unit-tested): `NightSkySim` (the wallpaper's simulation and mode
-  policy), `FuzzyMatch` (fuzzy scoring and best-index used by type-to-select).
+  policy), `FuzzyMatch` (fuzzy scoring and best-index used by type-to-select),
+  `CalendarAgenda` (the calendar's `{date}`/`{start}`/`{end}` substitution,
+  output cleanup and event-dot map).
 - Bar and blocks: `Bar` (`showWorkspaces` hides the Hyprland workspace strip),
   `Workspaces`, `WorkspacePreview`, `Media`, `NetworkBlock`/`NetworkPopout`,
   `BluetoothBlock`/`BluetoothPopout`, `BrightnessBlock`/`BrightnessPopout`,
   `Volume`/`VolumePopout`, `Battery`, `Power`, `Tray`/`TrayItem`/`TrayMenu`/
   `TrayOverflow`, `Calendar` and `MonthGrid` (the calendar's weekday header and
   day cells; seven columns by construction, so a fractional cell width cannot
-  drop a day).
+  drop a day, and a dot per day the agenda command marks).
 - Overlays: `SessionMenu` (actions are supplied by the host, so the greeter can
   omit Lock/Log out; typing fuzzy-selects a row — Enter still activates, and the
   search resets after a pause).
