@@ -27,14 +27,6 @@ PanelWindow {
     readonly property int cardWidth: 280
     readonly property int weekStart: (Quickshell.env("QSHELL_WEEK_START") || "mon").toLowerCase().startsWith("s") ? 0 : 1
 
-    // Only as many week rows as the month actually needs (4-6).
-    readonly property int daysInMonth: new Date(shownYear, shownMonth + 1, 0).getDate()
-    readonly property int firstOffset: {
-        var first = new Date(shownYear, shownMonth, 1);
-        return (first.getDay() - weekStart + 7) % 7;
-    }
-    readonly property int rows: Math.ceil((firstOffset + daysInMonth) / 7)
-
     property int shownYear: today.getFullYear()
     property int shownMonth: today.getMonth()
     property date selected: today
@@ -42,12 +34,6 @@ PanelWindow {
         var d = new Date();
         d.setHours(0, 0, 0, 0);
         return d;
-    }
-
-    function dayAt(index): date {
-        var first = new Date(shownYear, shownMonth, 1);
-        var offset = (first.getDay() - weekStart + 7) % 7;
-        return new Date(shownYear, shownMonth, 1 - offset + index);
     }
 
     function sameDay(a, b): bool {
@@ -199,74 +185,22 @@ PanelWindow {
                 }
             }
 
-            Row {
-                width: parent.width
-                spacing: 0
-
-                Repeater {
-                    model: 7
-
-                    Text {
-                        required property int index
-
-                        width: (layout.width) / 7
-                        horizontalAlignment: Text.AlignHCenter
-                        text: Qt.formatDate(calendar.dayAt(index), "ddd")
-                        color: calendar.theme.overlay
-                        font.family: calendar.theme.fontFamily
-                        font.pixelSize: calendar.theme.fontSizeTiny
-                    }
-                }
-            }
-
-            GridView {
-                id: grid
+            MonthGrid {
+                id: monthGrid
 
                 width: parent.width
-                height: cellHeight * calendar.rows
-                cellWidth: width / 7
-                cellHeight: 30
-                interactive: false
-                model: calendar.rows * 7
-
-                delegate: Rectangle {
-                    required property int index
-
-                    readonly property date day: calendar.dayAt(index)
-                    readonly property bool inMonth: day.getMonth() === calendar.shownMonth && day.getFullYear() === calendar.shownYear
-                    readonly property bool isToday: calendar.sameDay(day, calendar.today)
-                    readonly property bool isSelected: calendar.sameDay(day, calendar.selected)
-
-                    width: grid.cellWidth
-                    height: grid.cellHeight
-                    radius: calendar.theme.itemRadius
-                    color: isSelected ? calendar.theme.accent : (dayMouse.containsMouse ? calendar.theme.surfaceAlt : "transparent")
-                    border.width: isToday && !isSelected ? 1 : 0
-                    border.color: calendar.theme.accent
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: parent.day.getDate()
-                        color: parent.isSelected ? calendar.theme.base : (parent.inMonth ? calendar.theme.text : calendar.theme.overlay)
-                        font.family: calendar.theme.fontFamily
-                        font.pixelSize: calendar.theme.fontSizeSmall
-                        font.bold: parent.isToday
-                    }
-
-                    MouseArea {
-                        id: dayMouse
-
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: {
-                            if (calendar.sameDay(parent.day, calendar.selected))
-                                calendar.openApp(parent.day);
-                            else
-                                calendar.selected = parent.day;
-                        }
-                        onDoubleClicked: calendar.openApp(parent.day)
-                    }
+                theme: calendar.theme
+                shownYear: calendar.shownYear
+                shownMonth: calendar.shownMonth
+                weekStart: calendar.weekStart
+                selected: calendar.selected
+                onDayClicked: day => {
+                    if (calendar.sameDay(day, calendar.selected))
+                        calendar.openApp(day);
+                    else
+                        calendar.selected = day;
                 }
+                onDayDoubleClicked: day => calendar.openApp(day)
             }
 
         }

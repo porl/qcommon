@@ -28,7 +28,9 @@ directory import — there is no module path or import statement to keep in step
   `Workspaces`, `WorkspacePreview`, `Media`, `NetworkBlock`/`NetworkPopout`,
   `BluetoothBlock`/`BluetoothPopout`, `BrightnessBlock`/`BrightnessPopout`,
   `Volume`/`VolumePopout`, `Battery`, `Power`, `Tray`/`TrayItem`/`TrayMenu`/
-  `TrayOverflow`, `Calendar`.
+  `TrayOverflow`, `Calendar` and `MonthGrid` (the calendar's weekday header and
+  day cells; seven columns by construction, so a fractional cell width cannot
+  drop a day).
 - Overlays: `SessionMenu` (actions are supplied by the host, so the greeter can
   omit Lock/Log out; typing fuzzy-selects a row — Enter still activates, and the
   search resets after a pause).
