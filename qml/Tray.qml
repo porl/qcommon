@@ -52,6 +52,13 @@ Item {
         activePopout = state;
     }
 
+    // Close the open tray overlay: an item menu or the overflow grid.
+    function closeOverlays(): void {
+        if (activePopout)
+            activePopout.close();
+        expander.popout.close();
+    }
+
     visible: count > 0
     implicitWidth: shownCells > 0 ? shownCells * stride - spacing : 0
 

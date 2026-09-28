@@ -23,6 +23,18 @@ PanelWindow {
     // The clock opens the drop-down calendar (click to pin, focus-loss closes).
     property PopoutState clockPopout: PopoutState {}
 
+    // Close every temporary overlay this bar owns: the block popouts, the tray's
+    // overflow and menus, and the clock's calendar. The greeter's Escape reset
+    // calls this through each screen's bar.
+    function closeOverlays(): void {
+        tray.closeOverlays();
+        network.popout.close();
+        bluetooth.popout.close();
+        brightness.popout.close();
+        volume.popout.close();
+        bar.clockPopout.close();
+    }
+
     // On a PanelWindow these anchors are booleans meaning "attach to this screen
     // edge", not QML item anchors. exclusiveZone reserves the space so maximised
     // windows don't slide underneath.

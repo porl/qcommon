@@ -32,6 +32,11 @@ PanelWindow {
 
     signal actionTriggered(string action)
 
+    // Emitted when Escape dismisses the menu without running an action, so the
+    // host can treat it as "back out of everything" (the greeter resets the
+    // login card and closes the bar overlays with it).
+    signal escaped()
+
     // Pure mapping from capabilities to the rows, in display order. Rebuilt
     // whenever a flag changes; `current` is clamped in the handler below.
     readonly property var items: {
@@ -215,10 +220,12 @@ PanelWindow {
 
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Escape) {
-                    if (menu.query.length > 0)
+                    if (menu.query.length > 0) {
                         menu.clearQuery();
-                    else
+                    } else {
                         menu.visible = false;
+                        menu.escaped();
+                    }
                     event.accepted = true;
                 } else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) {
                     menu.clearQuery();
