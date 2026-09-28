@@ -16,6 +16,10 @@ PanelWindow {
     // Forwarded from the power block; the shell root opens the session menu.
     signal powerRequested()
 
+    // Forwarded from the calendar when Escape dismisses it (the focus grab gives
+    // it the keyboard, so that Escape never reaches whatever is behind).
+    signal escaped()
+
     // Width of everything to the tray's right, so the tray can cap itself
     // without colliding with the clock.
     readonly property real rightFixedWidth: media.implicitWidth + network.implicitWidth + bluetooth.implicitWidth + brightness.implicitWidth + volume.implicitWidth + battery.implicitWidth + power.implicitWidth + rightCluster.spacing * 7
@@ -169,5 +173,6 @@ PanelWindow {
         onHoveredChanged: hovered ? bar.clockPopout.contentEntered() : bar.clockPopout.contentExited()
         onFocusLost: bar.clockPopout.focusLost()
         onDismissRequested: bar.clockPopout.close()
+        onEscaped: bar.escaped()
     }
 }

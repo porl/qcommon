@@ -35,6 +35,10 @@ PanelWindow {
     signal focusLost()
     signal dismissRequested()
 
+    // Emitted when Escape dismisses the calendar, so a host can chain it into
+    // its own "back out of everything" handling (the greeter resets the login).
+    signal escaped()
+
     readonly property bool hovered: popupHover.hovered
 
     readonly property int cardWidth: 280
@@ -154,9 +158,10 @@ PanelWindow {
             selectRelative(7);
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
             openApp(selected);
-        else if (event.key === Qt.Key_Escape)
+        else if (event.key === Qt.Key_Escape) {
             dismissRequested();
-        else
+            escaped();
+        } else
             return;
         event.accepted = true;
     }
