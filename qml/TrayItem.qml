@@ -166,7 +166,6 @@ Item {
         isRoot: true
         anchor.item: root
 
-        onHoveredChanged: hovered ? root.popout.contentEntered() : root.popout.contentExited()
         onFocusLost: root.popout.focusLost()
         onCloseRequested: root.popout.close()
     }

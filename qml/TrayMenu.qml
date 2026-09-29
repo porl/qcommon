@@ -35,7 +35,6 @@ PopupWindow {
     // menu's own entries, taken from `handle`.
     property var path: []
 
-    readonly property bool hovered: menuHover.hovered
     readonly property int columns: path.length + 1
 
     function isExpanded(depth, entry): bool {
@@ -121,15 +120,6 @@ PopupWindow {
                     entry: depth === 0 ? null : trayMenu.path[depth - 1]
                 }
             }
-        }
-    }
-
-    // Hover tracking only; does not consume presses, so the rows still work.
-    Item {
-        anchors.fill: parent
-
-        HoverHandler {
-            id: menuHover
         }
     }
 }
