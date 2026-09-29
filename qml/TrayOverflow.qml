@@ -27,6 +27,10 @@ PopupWindow {
 
     // The menu PopoutState currently open among the grid's icons.
     property var activePopout: null
+    // How many of the grid's icons have a menu open. The grid's focus grab is
+    // released while any is open (see the grab below).
+    property int openMenus: 0
+    readonly property bool anyMenuOpen: openMenus > 0
     // Prefer a near-square grid; at least two columns when there is more than
     // one icon, capped at four so the popup does not grow sideways.
     readonly property int columns: items.length <= 1 ? 1 : Math.min(4, Math.ceil(Math.sqrt(items.length)))
@@ -39,9 +43,12 @@ PopupWindow {
 
     // Closing the grid closes any menu its icons had open.
     onOpenChanged: {
-        if (!open && activePopout) {
-            activePopout.close();
-            activePopout = null;
+        if (!open) {
+            openMenus = 0;
+            if (activePopout) {
+                activePopout.close();
+                activePopout = null;
+            }
         }
     }
 
@@ -58,10 +65,19 @@ PopupWindow {
 
     // Pinned while open; the grab is what gives the popup pointer input, as
     // with the tray menus. A click outside clears it and closes the panel.
+    //
+    // Released while one of the icons' menus is open: the menu brings its own
+    // grab, and the compositor clearing this one would read as a click outside
+    // (closing the grid and the menu with it). `active` comes back when the
+    // last menu closes, and the grab is recreated. A clear that races the
+    // release is ignored while a menu is open.
     HyprlandFocusGrab {
-        active: overflow.open
+        active: overflow.open && !overflow.anyMenuOpen
         windows: [overflow]
-        onCleared: overflow.focusLost()
+        onCleared: {
+            if (!overflow.anyMenuOpen)
+                overflow.focusLost();
+        }
     }
 
     Rectangle {
@@ -88,6 +104,7 @@ PopupWindow {
                     item: modelData
                     claim: overflow.claimMenu
                     onActivated: overflow.activated()
+                    onMenuVisibilityChanged: overflow.openMenus += open ? 1 : -1
                 }
             }
         }
